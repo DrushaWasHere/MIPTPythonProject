@@ -17,7 +17,6 @@ hexagonal_rule = "54454"
 tick = 1
 steps_per_tick = 1
 
-
 # 54454
 # 44441 roads
 # 44544 snowflakes :)
