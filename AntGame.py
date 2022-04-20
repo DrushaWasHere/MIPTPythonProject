@@ -17,6 +17,7 @@ hexagonal_rule = "54454"
 tick = 1
 steps_per_tick = 1
 
+
 # 54454
 # 44441 roads
 # 44544 snowflakes :)
@@ -58,8 +59,8 @@ for x in range(square_rule_length):
 dis_width = 800
 dis_height = 800
 
-size = 0.5
-hex_size = 0.5
+size = 1
+hex_size = 1
 N = int(dis_height // size)
 M = int(dis_width // size)
 
@@ -88,13 +89,15 @@ class Cell:
 
 hexagonal_b = bt.Button(cl.blue, dis.get_width() - 350, 100, 200, 50, "Hexagonal")
 square_b = bt.Button(cl.red, dis.get_width() - 350, 200, 150, 50, "Square")
-tick_b = bt.Button(cl.red, dis.get_width() - 350, 300, 150, 50, "Tick")
-steps_per_tick_b = bt.Button(cl.red, dis.get_width() - 350, 400, 300, 50, "Steps per tick")
+tick_b = bt.Button(cl.green, dis.get_width() - 350, 300, 150, 50, "Tick")
+steps_per_tick_b = bt.Button(cl.green, dis.get_width() - 350, 400, 300, 50, "Steps per tick")
+cell_size_b = bt.Button(cl.green, dis.get_width() - 350, 500, 300, 50, "Cell size")
 input_box_square_rule = bt.InputBox(square_b.x, square_b.y + 60, 200, 32, "RL")
 input_box_hexagonal_rule = bt.InputBox(hexagonal_b.x, hexagonal_b.y + 60, 200, 32, "55544")
 input_box_tick = bt.InputBox(tick_b.x, tick_b.y + 60, 200, 32, "0")
 input_box_steps_per_tick = bt.InputBox(steps_per_tick_b.x, steps_per_tick_b.y + 60, 200, 32, "10000")
-input_boxes = [input_box_square_rule, input_box_hexagonal_rule, input_box_tick, input_box_steps_per_tick]
+input_box_cell_size = bt.InputBox(cell_size_b.x, cell_size_b.y + 60, 200, 32, "1")
+input_boxes = [input_box_square_rule, input_box_hexagonal_rule, input_box_tick, input_box_steps_per_tick, input_box_cell_size]
 
 
 
@@ -103,13 +106,14 @@ input_boxes = [input_box_square_rule, input_box_hexagonal_rule, input_box_tick, 
 
 
 def squareGameLoop():
-    global square_rule, square_rule_length, tick, steps_per_tick
+    global square_rule, square_rule_length, tick, steps_per_tick, size
     tick = int(input_box_tick.text)
     steps_per_tick = int(input_box_steps_per_tick.text)
     square_rule = input_box_square_rule.text
     square_rule_length = len(square_rule)
     pygame.draw.rect(dis, cl.black, [0, 0, dis.get_width() - 400, dis.get_height()])
     game_over = False
+    size = int(input_box_cell_size.text)
     N = int(dis_height // size)
     M = int(dis_width // size)
     field = []
@@ -127,6 +131,7 @@ def squareGameLoop():
     ant = ants.SquareAnt()
     ant.rule = square_rule
     ant.i, ant.j = int(dis_height / (2 * size)), int(dis_width / (2 * size))
+    time_last = pygame.time.get_ticks()
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -134,7 +139,7 @@ def squareGameLoop():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if hexagonal_b.isOver(event.pos):
                     hexGameLoop()
-                if square_b.isOver(event.pos) or tick_b.isOver(event.pos) or steps_per_tick_b.isOver(event.pos):
+                if square_b.isOver(event.pos) or tick_b.isOver(event.pos) or steps_per_tick_b.isOver(event.pos) or cell_size_b.isOver(event.pos):
                     squareGameLoop()
             for box in input_boxes:
                 box.handle_event(event)
@@ -142,21 +147,25 @@ def squareGameLoop():
             box.update()
         for box in input_boxes:
             box.draw(dis)
-        for i in range(steps_per_tick):
-            ant.MakeMove(field)
-            ant.FixCoords(N, M)
+        if pygame.time.get_ticks() - time_last > tick:
+            time_last = pygame.time.get_ticks()
+            for i in range(steps_per_tick):
+                ant.MakeMove(field)
+                ant.FixCoords(N, M)
         pygame.display.update()
-        clock.tick(tick)
     pygame.quit()
     quit()
 # gameLoop()
 
 def hexGameLoop():
-    global hexagonal_rule, hexagonal_rule_length
+    global hexagonal_rule, hexagonal_rule_length, tick, steps_per_tick, hex_size, size
     hexagonal_rule = input_box_hexagonal_rule.text
     hexagonal_rule_length = len(hexagonal_rule)
+    tick = int(input_box_tick.text)
+    hex_size = int(input_box_cell_size.text)
+    size = hex_size
+    steps_per_tick = int(input_box_steps_per_tick.text)
     pygame.draw.rect(dis, cl.black, [0, 0, dis.get_width() - 400, dis.get_height()])
-    speed = 1000
     game_over = False
     N = int(dis_height // (hex_size * 1.5))
     M = int(dis_width // (hex_size * 3 ** (1/2)))
@@ -178,12 +187,13 @@ def hexGameLoop():
     ant.rule = hexagonal_rule
     ant.i = N // 2
     ant.j = M // 2
+    time_last = pygame.time.get_ticks()
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if hexagonal_b.isOver(event.pos):
+                if hexagonal_b.isOver(event.pos) or tick_b.isOver(event.pos) or steps_per_tick_b.isOver(event.pos) or cell_size_b.isOver(event.pos):
                     hexGameLoop()
                 if square_b.isOver(event.pos):
                     squareGameLoop()
@@ -195,12 +205,13 @@ def hexGameLoop():
         for box in input_boxes:
             box.draw(dis)
         pygame.display.update()
-        steps_per_tick = 10000
-        for i in range(steps_per_tick):
-            ant.MakeHexMove(field)
-            ant.FixCoords(N, M)
+        if pygame.time.get_ticks() - time_last > tick:
+            time_last = pygame.time.get_ticks()
+            for i in range(steps_per_tick):
+                ant.MakeHexMove(field)
+                ant.FixCoords(N, M)
         pygame.display.update()
-        #clock.tick(speed)
+        # clock.tick(tick)
     pygame.quit()
     quit()
 
@@ -216,11 +227,12 @@ def GameLoop():
                 if square_b.isOver(event.pos):
                     squareGameLoop()
         pygame.display.update()
-        #clock.tick(speed)
         hexagonal_b.Draw(dis)
         square_b.Draw(dis)
         tick_b.Draw(dis)
         steps_per_tick_b.Draw(dis)
+        cell_size_b.Draw(dis)
+        squareGameLoop()
     pygame.quit()
     quit()
 
