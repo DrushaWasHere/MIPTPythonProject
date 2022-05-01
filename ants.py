@@ -74,13 +74,13 @@ class HexAnt(Ant):
         if self.j < 0:
             self.j = M - 1
 
-    def MakeHexMove(self, field):
+    def MakeHexMove(self, field, gl):
         old_colour = field[self.i][self.j].colour
         new_colour = (old_colour + 1) % len(self.rule)
         for i in range(int(self.rule[old_colour])):
             self.LeftTurn()
         field[self.i][self.j].colour = new_colour
-        field[self.i][self.j].Draw()
+        field[self.i][self.j].Draw(gl)
         self.Step()
 
 class SquareAnt(Ant):
@@ -115,7 +115,7 @@ class SquareAnt(Ant):
         if self.j < 0:
             self.j = M - 1
 
-    def MakeMove(self, field):
+    def MakeMove(self, field, gl):
         old_colour = field[self.i][self.j].colour
         new_colour = (old_colour + 1) % len(self.rule)
         if self.rule[old_colour] == 'R':
@@ -130,5 +130,5 @@ class SquareAnt(Ant):
             self.RightTurn()
 
         field[self.i][self.j].colour = new_colour
-        field[self.i][self.j].Draw()
+        field[self.i][self.j].Draw(gl)
         self.Step()
