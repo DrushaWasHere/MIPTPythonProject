@@ -5,7 +5,7 @@ import colours as cl
 import buttons as bt
 import ants
 import GlobalVariables as gv
-import main
+import loop
 import SquareGameLoop as sqg
 import HexGameLoop as hgl
 import AntGame
