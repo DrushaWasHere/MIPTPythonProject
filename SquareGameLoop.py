@@ -1,0 +1,57 @@
+import pygame
+import time
+import random
+import colours as cl
+import buttons as bt
+import ants
+import GlobalVariables as gv
+import main
+import SquareGameLoop as sqg
+import HexGameLoop as hgl
+import AntGame
+
+def squareGameLoop(gl, ic):
+    gl.tick = int(ic.input_box_tick.text)
+    gl.steps_per_tick = int(ic.input_box_steps_per_tick.text)
+    gl.square_rule = ic.input_box_square_rule.text
+    gl.square_rule_length = len(gl.square_rule)
+    pygame.draw.rect(gl.dis, cl.black, [0, 0, gl.dis.get_width() - 400, gl.dis.get_height()])
+    game_over = False
+    gl.size = int(ic.input_box_cell_size.text)
+    N = int(gl.dis_height // gl.size)
+    M = int(gl.dis_width // gl.size)
+    field = []
+    gl.square_colours = []
+    for x in range(gl.square_rule_length):
+        gl.square_colours.append(cl.standard_colours[random.randint(0, len(cl.standard_colours) - 1)])
+    for i in range(N):
+        row = []
+        for j in range(M):
+            row.append(AntGame.Cell())
+            row[-1].x = i
+            row[-1].y = j
+        field += [row]
+    ant = ants.SquareAnt()
+    ant.rule = gl.square_rule
+    ant.i, ant.j = int(gl.dis_height / (2 * gl.size)), int(gl.dis_width / (2 * gl.size))
+    time_last = pygame.time.get_ticks()
+    while not game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if ic.hexagonal_b.isOver(event.pos):
+                    hgl.hexGameLoop(gl, ic)
+                if ic.square_b.isOver(event.pos) or ic.tick_b.isOver(event.pos) or ic.steps_per_tick_b.isOver(event.pos) or ic.cell_size_b.isOver(event.pos):
+                    squareGameLoop(gl, ic)
+            for box in ic.input_boxes:
+                box.handle_event(event)
+        AntGame.Draw(gl, ic)
+        if pygame.time.get_ticks() - time_last > gl.tick:
+            time_last = pygame.time.get_ticks()
+            for i in range(gl.steps_per_tick):
+                ant.MakeMove(field, gl)
+                ant.FixCoords(N, M)
+        pygame.display.update()
+    pygame.quit()
+    quit()
