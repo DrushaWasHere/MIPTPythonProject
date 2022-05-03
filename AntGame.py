@@ -5,7 +5,7 @@ import colours as cl
 import buttons as bt
 import ants
 import GlobalVariables as gv
-import main
+import loop
 import SquareGameLoop as sgl
 import HexGameLoop as hgl
 pygame.init()
@@ -74,6 +74,6 @@ def Draw(gl, ic):
 # gameLoop()
 
 if __name__ == "__main__":
-	main.main()
+	loop.main()
 
 
